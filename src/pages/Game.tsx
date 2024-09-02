@@ -14,7 +14,6 @@ interface GameState {
   gameOver: boolean;
   difficulty: number;
   typedWords: Array<{ word: string; meaning: string }>;
-  startTime: number;
   wpm: number;
 }
 
@@ -49,33 +48,41 @@ const Game: React.FC = () => {
     gameOver: false,
     difficulty: 1,
     typedWords: [],
-    startTime: 0,
     wpm: 0,
   });
   const [countdown, setCountdown] = useState<number>(3);
-  const [isCountdownActive, setIsCountdownActive] = useState<boolean>(true);
+  const [isCountdownActive, setIsCountdownActive] = useState<boolean>(false);
   const [allWords, setAllWords] = useState<string[]>([]);
+  const [wordsLoaded, setWordsLoaded] = useState<boolean>(false);
   // const navigate = useNavigate();
   const playerName = document.cookie.replace(/(?:(?:^|.*;\s*)playerName\s*=\s*([^;]*).*$)|^.*$/, "$1") || 'Player';
   const lastUpdateTimeRef = useRef<number>(Date.now());
   const gameLoopRef = useRef<NodeJS.Timeout | null>(null);
+  const startTimeRef = useRef<number>(0);
 
   const { data: fetchedWords, isLoading: isLoadingWords } = useQuery({
     queryKey: ['allWords'],
     queryFn: fetchAllWords,
   });
 
-  useEffect(() => {
-    if (fetchedWords) {
-      setAllWords(fetchedWords);
-    }
-  }, [fetchedWords]);
-
   const { data: wordMeaning, refetch: refetchMeaning } = useQuery({
     queryKey: ['wordMeaning', gameState.currentWord],
     queryFn: () => fetchWordMeaning(gameState.currentWord),
     enabled: false,
   });
+
+  useEffect(() => {
+    if (fetchedWords && !isLoadingWords) {
+      setAllWords(fetchedWords);
+      setWordsLoaded(true);
+    }
+  }, [fetchedWords, isLoadingWords]);
+
+  useEffect(() => {
+    if (wordsLoaded && !isCountdownActive) {
+      setIsCountdownActive(true);
+    }
+  }, [wordsLoaded]);
 
   useEffect(() => {
     if (isCountdownActive) {
@@ -88,16 +95,16 @@ const Game: React.FC = () => {
         });
       }, 1000);
       return () => clearInterval(countdownInterval);
-    } else if (!isLoadingWords) {
+    } else if (wordsLoaded) {
       startGame();
     }
-  }, [isCountdownActive, isLoadingWords]);
+  }, [isCountdownActive, wordsLoaded]);
 
   useEffect(() => {
-    if (!isCountdownActive && !isLoadingWords) {
-      setGameState(prev => ({ ...prev, currentWord: getRandomWord(), startTime: Date.now() }));
+    if (!isCountdownActive && wordsLoaded) {
+      setGameState(prev => ({ ...prev, currentWord: getRandomWord() }));
     }
-  }, [isCountdownActive, isLoadingWords]);
+  }, [isCountdownActive, wordsLoaded]);
 
   useEffect(() => {
     if (gameState.currentWord) {
@@ -111,6 +118,7 @@ const Game: React.FC = () => {
 
   const startGame = () => {
     lastUpdateTimeRef.current = Date.now();
+    startTimeRef.current = Date.now();
     gameLoopRef.current = setInterval(updateGameState, 100);
   };
 
@@ -121,8 +129,8 @@ const Game: React.FC = () => {
     
     setGameState(prev => {
       const newTimeLeft = Math.max(0, prev.timeLeft - timePassed * TIME_DECREASE_RATE * prev.difficulty);
-      const elapsedMinutes = (now - prev.startTime) / 60000;
-      const newWpm = elapsedMinutes > 0 ? Math.round(prev.score / elapsedMinutes) : 0;
+      const elapsedMinutes = (now - startTimeRef.current) / 60000;
+      const newWpm = Math.round((prev.score / elapsedMinutes) || 0);
 
       if (newTimeLeft <= 0.1) {
         if (gameLoopRef.current) clearInterval(gameLoopRef.current);
@@ -149,9 +157,6 @@ const Game: React.FC = () => {
 
       if (inputValue === currentWord) {
         const newWord = getRandomWord();
-        const now = Date.now();
-        const elapsedMinutes = (now - prev.startTime) / 60000;
-        const newWpm = elapsedMinutes > 0 ? Math.round((prev.score + 1) / elapsedMinutes) : 0;
         return {
           ...prev,
           currentWord: newWord,
@@ -159,7 +164,6 @@ const Game: React.FC = () => {
           timeLeft: Math.min(INITIAL_TIME, newTimeLeft + TIME_INCREASE_PER_WORD / prev.difficulty),
           input: '',
           typedWords: [...prev.typedWords, { word: currentWord, meaning: wordMeaning || 'Meaning not available' }],
-          wpm: newWpm
         };
       }
       return { ...prev, input: inputValue, timeLeft: newTimeLeft };
@@ -175,12 +179,12 @@ const Game: React.FC = () => {
       gameOver: false,
       difficulty: 1,
       typedWords: [],
-      startTime: Date.now(),
       wpm: 0,
     });
     setCountdown(3);
     setIsCountdownActive(true);
     lastUpdateTimeRef.current = Date.now();
+    startTimeRef.current = Date.now();
     if (gameLoopRef.current) clearInterval(gameLoopRef.current);
   };
 
@@ -201,8 +205,10 @@ const Game: React.FC = () => {
   if (isLoadingWords) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100 font-sans">
-        <Spinner size="lg" />
-        <div className="ml-4 text-2xl font-bold">Loading words...</div>
+        <div className="text-2xl font-bold flex items-center">
+          <Spinner className="mr-2" />
+          Loading words...
+        </div>
       </div>
     );
   }
@@ -241,9 +247,9 @@ const Game: React.FC = () => {
           <GameOver
             playerName={playerName}
             score={gameState.score}
+            wpm={gameState.wpm}
             typedWords={gameState.typedWords}
             onPlayAgain={handlePlayAgain}
-            wpm={gameState.wpm}
           />
         )}
       </div>

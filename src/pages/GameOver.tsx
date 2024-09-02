@@ -7,12 +7,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 interface GameOverProps {
   playerName: string;
   score: number;
+  wpm: number;
   typedWords: Array<{ word: string; meaning: string }>;
   onPlayAgain: () => void;
-  wpm: number;
 }
 
-const GameOver: React.FC<GameOverProps> = ({ playerName, score, typedWords, onPlayAgain, wpm }) => {
+const GameOver: React.FC<GameOverProps> = ({ playerName, score, wpm, typedWords, onPlayAgain }) => {
   const navigate = useNavigate();
   const uniqueTypedWords = Array.from(new Set(typedWords.map(({ word }) => word)));
 
