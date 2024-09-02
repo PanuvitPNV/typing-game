@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import GameOver from './GameOver';
@@ -55,7 +55,7 @@ const Game: React.FC = () => {
   const [countdown, setCountdown] = useState<number>(3);
   const [isCountdownActive, setIsCountdownActive] = useState<boolean>(true);
   const [allWords, setAllWords] = useState<string[]>([]);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const playerName = document.cookie.replace(/(?:(?:^|.*;\s*)playerName\s*=\s*([^;]*).*$)|^.*$/, "$1") || 'Player';
   const lastUpdateTimeRef = useRef<number>(Date.now());
   const gameLoopRef = useRef<NodeJS.Timeout | null>(null);
