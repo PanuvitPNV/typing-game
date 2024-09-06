@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DifficultyLevel } from '../utils/gameConfig';
 
 interface GameOverProps {
   playerName: string;
@@ -10,19 +11,22 @@ interface GameOverProps {
   wpm: number;
   typedWords: Array<{ word: string; meaning: string }>;
   onPlayAgain: () => void;
+  difficulty: DifficultyLevel;
+  time: number;
 }
 
-const GameOver: React.FC<GameOverProps> = ({ playerName, score, wpm, typedWords, onPlayAgain }) => {
+const GameOver: React.FC<GameOverProps> = ({ playerName, score, wpm, typedWords, onPlayAgain, difficulty, time }) => {
   const navigate = useNavigate();
   const uniqueTypedWords = Array.from(new Set(typedWords.map(({ word }) => word)));
 
   return (
-    <>
-      <h2 className="text-2xl font-bold mb-4">Game Over, {playerName}!</h2>
-      <p className="text-xl mb-2">Your score: {score}</p>
-      <p className="text-xl mb-6">Your WPM: {wpm}</p>
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+      <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Game Over, {playerName}!</h2>
+      <p className="text-xl mb-2 text-gray-700 dark:text-gray-300">Your score: {score}</p>
+      <p className="text-xl mb-2 text-gray-700 dark:text-gray-300">Your WPM: {wpm}</p>
+      <p className="text-xl mb-6 text-gray-700 dark:text-gray-300">Difficulty: {difficulty} | Time: {time} seconds</p>
 
-      <ScrollArea className="h-96">
+      <ScrollArea className="h-96 mb-6">
         <Table>
           <TableHeader>
             <TableRow>
@@ -32,7 +36,7 @@ const GameOver: React.FC<GameOverProps> = ({ playerName, score, wpm, typedWords,
           </TableHeader>
           <TableBody>
             {uniqueTypedWords.map((word, index) => {
-              const { meaning } = typedWords.find((typedWord) => typedWord.word === word)!;
+              const { meaning } = typedWords.find((typedWord) => typedWord.word === word) || { meaning: 'N/A' };
               return (
                 <TableRow key={index}>
                   <TableCell>{word}</TableCell>
@@ -44,13 +48,15 @@ const GameOver: React.FC<GameOverProps> = ({ playerName, score, wpm, typedWords,
         </Table>
       </ScrollArea>
 
-      <Button onClick={onPlayAgain} className="mr-2 mt-5">
-        Play Again
-      </Button>
-      <Button onClick={() => navigate('/')} variant="outline" className="mt-4">
-        Home
-      </Button>
-    </>
+      <div className="flex justify-between">
+        <Button onClick={onPlayAgain}>
+          Play Again
+        </Button>
+        <Button onClick={() => navigate('/')} variant="outline">
+          Home
+        </Button>
+      </div>
+    </div>
   );
 };
 
