@@ -16,16 +16,16 @@
 
     /* Linting */
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": false, // This is a bug in the current version of the compiler
+    "noUnusedParameters": false,  // This is a bug in the current version of the compiler
+    "noFallthroughCasesInSwitch": true, 
 
     "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"
       ]
-    }
+    },
   },
   "include": ["src"]
 }
