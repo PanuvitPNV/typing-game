@@ -21,18 +21,18 @@ export const useColorScheme = () => {
 
 export const gameConfig = {
   TIME_DECREASE_RATE: {
-    easy: 0.2,
-    normal: 0.3,
-    hard: 0.4,
-  },
-  TIME_INCREASE_PER_WORD: {
-    easy: 3,
-    normal: 2,
-    hard: 1,
-  },
-  WRONG_CHARACTER_PENALTY: {
     easy: 0.3,
     normal: 0.5,
     hard: 0.7,
+  },
+  TIME_INCREASE_PER_WORD: {
+    easy: 2,
+    normal: 1.5,
+    hard: 1,
+  },
+  WRONG_CHARACTER_PENALTY: {
+    easy: 0.5,
+    normal: 0.7,
+    hard: 0.9,
   },
 };

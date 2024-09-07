@@ -185,7 +185,7 @@ const Game: React.FC = () => {
             <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Game Settings</h2>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Select Time:</label>
-              <Select onValueChange={(value) => setSelectedTime(Number(value))}>
+              <Select onValueChange={(value) => setSelectedTime(Number(value))} defaultValue="60">
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select time" />
                 </SelectTrigger>
@@ -199,7 +199,7 @@ const Game: React.FC = () => {
             </div>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Select Difficulty:</label>
-              <Select onValueChange={(value) => setGameState(prev => ({ ...prev, difficulty: value as DifficultyLevel }))}>
+              <Select onValueChange={(value) => setGameState(prev => ({ ...prev, difficulty: value as DifficultyLevel }))} defaultValue="normal">
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select difficulty" />
                 </SelectTrigger>
@@ -212,7 +212,7 @@ const Game: React.FC = () => {
             </div>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Select Background:</label>
-              <Select onValueChange={setBackgroundColor}>
+              <Select onValueChange={setBackgroundColor} defaultValue="from-blue-500 to-purple-600">
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select background" />
                 </SelectTrigger>
